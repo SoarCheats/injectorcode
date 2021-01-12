@@ -1,0 +1,36 @@
+            std::string stringpath = "C://ApexCheat//cheat.dll";
+            const char* dllPath = stringpath.c_str();
+            std::cout << "ByteCode Located Launching Cheat" << std::endl;
+            Sleep(5000);
+            _getch();
+
+            DWORD pID;
+            GetWindowThreadProcessId(FindWindowA(NULL, "Calculator"), &pID);
+
+            if (!pID)
+            {
+                MessageBoxA(NULL, "Couldn't Get Process ID. Check If Calculator Is Open", "Error", NULL);
+            }
+
+            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, pID);
+
+            if (hProcess == INVALID_HANDLE_VALUE)
+            {
+                MessageBoxA(NULL, "Couldn't Get Handle to CSGO Check If Calculator Is Open", "Error", NULL);
+            }
+
+            void* allocmemory = VirtualAllocEx(hProcess, 0, MAX_PATH, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+            WriteProcessMemory(hProcess, allocmemory, dllPath, MAX_PATH, 0);
+
+            HANDLE hThread = CreateRemoteThread(hProcess, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, allocmemory, 0, 0);
+
+            if (hThread)
+            {
+                MessageBoxA(NULL, "Injected Successfully", "Success", NULL);
+                VirtualFreeEx(hProcess, allocmemory, NULL, MEM_RELEASE);
+                CloseHandle(hThread);
+                CloseHandle(hProcess);
+            }
+
+            return 0;
